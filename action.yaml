@@ -1,0 +1,26 @@
+name: Release
+description: Create release
+
+inputs:
+  GITHUB_TOKEN:
+    description: "GITHUB_TOKEN"
+    required: true
+
+  target_branch:
+    description: "Target branch for releases."
+    default: dev
+
+runs:
+  using: "composite"
+  steps:
+    - name: Publish release
+      if: github.ref == 'refs/heads/${{inputs.target_branch}}'
+      shell: bash
+      env:
+        GH_TOKEN: ${{inputs.GITHUB_TOKEN}}
+      run: |
+        source .venv/bin/activate
+        git config user.name github-actions
+        git config user.email github-actions@github.com
+        semantic-release publish -v DEBUG
+        git push origin HEAD:${{inputs.target_branch}}
